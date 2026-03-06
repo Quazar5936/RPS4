@@ -319,6 +319,11 @@ namespace KR1
             newRay.HorizontalAngle = horizontalAngle;
             newRay.VerticalAngle = verticalAngle;
 
+            if (!GeometryUtils.ThisTriangleIsExists(newTriangle))
+            {
+                return false;
+            }
+
             userTriangle = newTriangle;
             userRay = newRay;
 

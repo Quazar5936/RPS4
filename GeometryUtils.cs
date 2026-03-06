@@ -103,6 +103,44 @@ namespace KR1
                               a.x * b.y - a.y * b.x);
         }
 
+        static double VectorLen(Vector vec)
+        {
+            return Math.Pow(vec.x * vec.x + vec.y * vec.y + vec.z * vec.z, 0.5);
+        }
+        
+        // Проверка на существование треугольника
+        public static bool ThisTriangleIsExists(Triangle triangle)
+        {
+            List<double> edgeLens = new();
+
+            Vector edgeV2V1vec = Subtract(triangle.SecondVertex, triangle.FirstVertex);
+            edgeLens.Add(VectorLen(edgeV2V1vec));
+
+            Vector edgeV3V1vec = Subtract(triangle.ThirdVertex, triangle.FirstVertex);
+            edgeLens.Add(VectorLen(edgeV3V1vec));
+
+            Vector edgeV3V2vec = Subtract(triangle.ThirdVertex, triangle.SecondVertex);
+            edgeLens.Add(VectorLen(edgeV3V2vec));
+
+            double maxEdgeLen = Math.Max(edgeLens[0], Math.Max(edgeLens[1], edgeLens[2]));
+            
+            double notMaxEdgeLensSum = 0.0;
+            for(int i = 0;i < edgeLens.Count; i++)
+            {
+                if (edgeLens[i] != maxEdgeLen)
+                {
+                    notMaxEdgeLensSum += edgeLens[i];
+                }
+            }
+
+            if (maxEdgeLen < notMaxEdgeLensSum)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
     }
 
 }

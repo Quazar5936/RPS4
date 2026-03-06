@@ -42,41 +42,50 @@ namespace KR1
 
         public static void TriangleInput(out Triangle userTriangle)
         {
-            Point firstVertex = new();
-            Console.Write("Введите координаты первой вершины треугольника\nКоордината x: ");
-            firstVertex.x = NumberInput<double>();
+            userTriangle = new Triangle();
 
-            Console.Write("(первая вершина)Координата y: ");
-            firstVertex.y = NumberInput<double>();
+            bool triangleInput = true;
+            while (triangleInput)
+            {
+                Point firstVertex = new();
+                Console.Write("Введите координаты первой вершины треугольника\nКоордината x: ");
+                firstVertex.x = NumberInput<double>();
 
-            Console.Write("(первая вершина)Координата z: ");
-            firstVertex.z = NumberInput<double>();
+                Console.Write("(первая вершина)Координата y: ");
+                firstVertex.y = NumberInput<double>();
 
-            Point secondVertex = new();
+                Console.Write("(первая вершина)Координата z: ");
+                firstVertex.z = NumberInput<double>();
 
-            Console.Write("\nВведите координаты второй вершины треугольника\nКоордината x: ");
-            secondVertex.x = NumberInput<double>();
+                Point secondVertex = new();
 
-            Console.Write("(вторая вершина)Координата y: ");
-            secondVertex.y = NumberInput<double>();
+                Console.Write("\nВведите координаты второй вершины треугольника\nКоордината x: ");
+                secondVertex.x = NumberInput<double>();
 
-            Console.Write("(вторая вершина)Координата z: ");
-            secondVertex.z = NumberInput<double>();
+                Console.Write("(вторая вершина)Координата y: ");
+                secondVertex.y = NumberInput<double>();
 
-            Point thirdVertex = new();
+                Console.Write("(вторая вершина)Координата z: ");
+                secondVertex.z = NumberInput<double>();
 
-            Console.Write("Введите координаты третьей вершины\nКоордината x: ");
-            thirdVertex.x = NumberInput<double>();
+                Point thirdVertex = new();
 
-            Console.Write("(третья вершина)Координата y: ");
-            thirdVertex.y = NumberInput<double>();
+                Console.Write("Введите координаты третьей вершины\nКоордината x: ");
+                thirdVertex.x = NumberInput<double>();
 
-            Console.Write("(третья вершина)Координата z: ");
-            thirdVertex.z = NumberInput<double>();
+                Console.Write("(третья вершина)Координата y: ");
+                thirdVertex.y = NumberInput<double>();
 
-            Triangle newTriangle = new(firstVertex, secondVertex, thirdVertex);
+                Console.Write("(третья вершина)Координата z: ");
+                thirdVertex.z = NumberInput<double>();
 
-            userTriangle = newTriangle;
+                Triangle newTriangle = new(firstVertex, secondVertex, thirdVertex);
+                if (GeometryUtils.ThisTriangleIsExists(newTriangle))
+                {
+                    userTriangle = newTriangle;
+                    return;
+                }
+            }
         }
 
         public static void RayInput(out Ray userRay)

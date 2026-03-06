@@ -23,7 +23,7 @@ namespace KR1
             SecondVertex = new Point(secondVertex.x, secondVertex.y, secondVertex.z);
             ThirdVertex = new Point(thirdVertex.x, thirdVertex.y, thirdVertex.z);
         }
-        
+
     }
 
 }

@@ -100,18 +100,22 @@ namespace KR1
             UserRay.StartPointOfRay.z = GetRandomDouble(-100, 100);
             UserRay.HorizontalAngle = GetRandomDouble(0, 360);
             UserRay.VerticalAngle = GetRandomDouble(0, 360);
+            
+            do
+            {
+                UserTriangle.FirstVertex.x = GetRandomDouble(-3, 3);
+                UserTriangle.FirstVertex.y = GetRandomDouble(-3, 3);
+                UserTriangle.FirstVertex.z = GetRandomDouble(-3, 3);
 
-            UserTriangle.FirstVertex.x = GetRandomDouble(-100, 100);
-            UserTriangle.FirstVertex.y = GetRandomDouble(-100, 100);
-            UserTriangle.FirstVertex.z= GetRandomDouble(-100, 100);
+                UserTriangle.SecondVertex.x = GetRandomDouble(-2, 2);
+                UserTriangle.SecondVertex.y = GetRandomDouble(-2, 2);
+                UserTriangle.SecondVertex.z = GetRandomDouble(-2, 2);
 
-            UserTriangle.SecondVertex.x = GetRandomDouble(-100, 100);
-            UserTriangle.SecondVertex.y = GetRandomDouble(-100, 100);
-            UserTriangle.SecondVertex.z = GetRandomDouble(-100, 100);
-
-            UserTriangle.ThirdVertex.x = GetRandomDouble(-100, 100);
-            UserTriangle.ThirdVertex.y = GetRandomDouble(-100, 100);
-            UserTriangle.ThirdVertex.z = GetRandomDouble(-100, 100);
+                UserTriangle.ThirdVertex.x = GetRandomDouble(-1, 1);
+                UserTriangle.ThirdVertex.y = GetRandomDouble(-1, 1);
+                UserTriangle.ThirdVertex.z = GetRandomDouble(-1, 1);
+                
+            } while (!GeometryUtils.ThisTriangleIsExists(UserTriangle));
 
             PrintAllData();
             
@@ -128,7 +132,7 @@ namespace KR1
 
             SaveToFileChoice();
         }
-
+       
         void InputDataFromFile()
         {
             bool DataIsLoaded = FileOperations.LoadDataFromFile(out UserTriangle, out UserRay);
