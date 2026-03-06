@@ -85,6 +85,8 @@ namespace KR1
                     userTriangle = newTriangle;
                     return;
                 }
+
+                Console.WriteLine("Такого треугольника не существует, введите, пожалуйста, данные снова");
             }
         }
 
