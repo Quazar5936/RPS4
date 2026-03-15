@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="../KR2Test/KR2Test.csproj" Id="ce10593d-c2fd-494f-8eb7-785a53d4321d" />
+  <Project Path="KR2.csproj" />
+</Solution>
