@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq.Expressions;
 using System.Numerics;
 using System.Reflection.Metadata;
@@ -14,25 +15,22 @@ namespace KR1
     {
         static void RewriteFileData(string filePath, Triangle userTriangle, Ray userRay)
         {
-            string newFileData = $"{userTriangle.FirstVertex.x};{userTriangle.FirstVertex.y};{userTriangle.FirstVertex.z}\t" +
-                $"{userTriangle.SecondVertex.x};{userTriangle.SecondVertex.y};{userTriangle.SecondVertex.z}\t" +
-                $"{userTriangle.ThirdVertex.x};{userTriangle.ThirdVertex.y};{userTriangle.ThirdVertex.z}\t" +
-                $"{userRay.StartPointOfRay.x};{userRay.StartPointOfRay.y};{userRay.StartPointOfRay.z}\t" +
-                $"{userRay.HorizontalAngle}\t{userRay.VerticalAngle}";
+            string formatData(double val) => val.ToString(CultureInfo.InvariantCulture);
 
+            string newFileData = $"{formatData(userTriangle.FirstVertex.x)};{formatData(userTriangle.FirstVertex.y)};{formatData(userTriangle.FirstVertex.z)}\t" +
+                $"{formatData(userTriangle.SecondVertex.x)};{formatData(userTriangle.SecondVertex.y)};{formatData(userTriangle.SecondVertex.z)}\t" +
+                $"{formatData(userTriangle.ThirdVertex.x)};{formatData(userTriangle.ThirdVertex.y)};{formatData(userTriangle.ThirdVertex.z)}\t" +
+                $"{formatData(userRay.StartPointOfRay.x)};{formatData(userRay.StartPointOfRay.y)};{formatData(userRay.StartPointOfRay.z)}\t" +
+                $"{formatData(userRay.HorizontalAngle)}\t{formatData(userRay.VerticalAngle)}";
+           
             File.WriteAllText(filePath, newFileData); 
         }
 
-        static bool ThisFileIsCorrect(string filePath)
+        static bool CanAccessFile(string filePath)
         {
             try
             {
-                FileStream fileStream = File.Open(filePath, FileMode.Open);
-                fileStream?.Close();
-            }
-            catch (FileNotFoundException)
-            {
-                return true;
+                using FileStream fileStream = File.OpenRead(filePath);
             }
             catch (Exception)
             {
@@ -45,12 +43,11 @@ namespace KR1
         static bool EnterFilePathAgainOrNotChoice()
         {
             Console.WriteLine("Ошибка работы с файлом...Ввести путь снова?\n1 - Да, ввести путь снова\n2 - Нет, не вводить, выйти в главное меню\n");
-            Console.Write("Ваш выбор: ");
-            EnterFilePathAgainOrNot userChoice = Input.EnumInput<EnterFilePathAgainOrNot>();
-
             bool ChoiceProcess = true;
             while (ChoiceProcess)
             {
+                Console.Write("Ваш выбор: ");
+                EnterFilePathAgainOrNot userChoice = Input.EnumInput<EnterFilePathAgainOrNot>();
                 switch (userChoice)
                 {
                     case EnterFilePathAgainOrNot.EnterFilePathAgain:
@@ -77,11 +74,10 @@ namespace KR1
                     Environment.Exit(0);
                 }
 
-                bool fileIsCorrect = ThisFileIsCorrect(filePath);
-                if (!fileIsCorrect)
+                bool fileAccess = CanAccessFile(filePath);
+                if (!fileAccess && File.Exists(filePath)) 
                 {
-                    bool EnterFilePathAgain = EnterFilePathAgainOrNotChoice();
-                    if (!EnterFilePathAgain)
+                    if (!HandleFileError())
                     {
                         return false;
                     }
@@ -105,8 +101,7 @@ namespace KR1
                 }
                 catch (Exception)
                 {
-                    bool EnterFilePathAgain = EnterFilePathAgainOrNotChoice();
-                    if (!EnterFilePathAgain)
+                    if (!HandleFileError())
                     {
                         return false;
                     }
@@ -119,7 +114,7 @@ namespace KR1
 
         static bool RewriteDataChoice(string filePath)
         {
-            if (!ThisFileIsCorrect(filePath))
+            if (!CanAccessFile(filePath))
             {
                 return true;
             }
@@ -170,11 +165,10 @@ namespace KR1
                     Environment.Exit(0);
                 }
 
-                bool fileIsCorrect = ThisFileIsCorrect(filePath);
-                if (!fileIsCorrect || !File.Exists(filePath))
+                bool fileAccess = CanAccessFile(filePath);
+                if (!fileAccess)
                 {
-                    bool EnterFilePathAgain = EnterFilePathAgainOrNotChoice();
-                    if (!EnterFilePathAgain)
+                    if (!HandleFileError())
                     {
                         return false;
                     }
@@ -184,26 +178,24 @@ namespace KR1
                 try 
                 {
                     allFileData = File.ReadAllText(filePath);
+                    if (!FileParser(allFileData, out userTriangle, out userRay))
+                    {
+                        if (!HandleFileError())
+                        {
+                            return false;
+                        }
+                        continue;
+                    }
                 }
                 catch (Exception)
                 {
-                    bool EnterFilePathAgain = EnterFilePathAgainOrNotChoice();
-                    if (!EnterFilePathAgain)
+                    if (!HandleFileError())
                     {
                         return false;
                     }
                     continue;
                 }
-                
-                if (!FileParser(allFileData, out userTriangle, out userRay))
-                {
-                    bool EnterFilePathAgain = EnterFilePathAgainOrNotChoice();
-                    if (!EnterFilePathAgain)
-                    {
-                        return false;
-                    }
-                    continue;
-                }
+
                 Console.WriteLine("Данные из файла успешно загружены\n");
                 return true;
             }
@@ -213,12 +205,17 @@ namespace KR1
 
        static bool ThisDataIsCorrect(string xStr, string yStr, string zStr)
         {
-            return double.TryParse(xStr, out double x) && double.TryParse(yStr, out double y) && double.TryParse(zStr, out double z);
+            return double.TryParse(xStr, NumberStyles.Any, CultureInfo.InvariantCulture, out double x) && double.TryParse(yStr, NumberStyles.Any, CultureInfo.InvariantCulture, out double y) && double.TryParse(zStr, NumberStyles.Any, CultureInfo.InvariantCulture, out double z);
         }
         
         static bool ThisDataIsCorrect(string angleStr)
         {
-            return double.TryParse(angleStr, out double angle);
+            return double.TryParse(angleStr, NumberStyles.Any, CultureInfo.InvariantCulture, out double angle);
+        }
+        
+        static bool HandleFileError()
+        {
+            return EnterFilePathAgainOrNotChoice();
         }
 
         static bool FileParser(string allFileData, out Triangle userTriangle, out Ray userRay)
@@ -238,28 +235,26 @@ namespace KR1
             {
                 if (i > OneStringBound)
                 {
-                    fileData.Add(new List<String>() { "" });
+                    fileData.Add(new List<string>() { "" });
                 }
                 else
                 {
-                    fileData.Add(new List<String>() { "", "", "" });
+                    fileData.Add(new List<string>() { "", "", "" });
                 }
             }
 
             int j = 0, k = 0;
-
+            
             for (int i = 0;i < allFileData.Length;i++)
             {
                 if (allFileData[i] == '\t')
                 {
                     ++j;
                     k = 0;
-                    continue;
                 }
                 else if (allFileData[i] == ';')
                 {
                     ++k;
-                    continue;
                 }
                 else if (j < fileData.Count && k < fileData[j].Count)
                 {
@@ -273,49 +268,41 @@ namespace KR1
 
             double horizontalAngle = 0.0, verticalAngle = 0.0;
 
-            try
+            for (int i = 0; i < requiredNumberOfComponentsInFile; i++)
             {
-                for (int i = 0; i < requiredNumberOfComponentsInFile; i++)
+                if (i == 0 && ThisDataIsCorrect(fileData[i][0], fileData[i][1], fileData[i][2]))
                 {
-                    if (i == 0 && ThisDataIsCorrect(fileData[i][k], fileData[i][k + 1], fileData[i][k + 2]))
-                    {
-                        newTriangle.FirstVertex.x = Convert.ToDouble(fileData[i][k]);
-                        newTriangle.FirstVertex.y = Convert.ToDouble(fileData[i][k + 1]);
-                        newTriangle.FirstVertex.z = Convert.ToDouble(fileData[i][k + 2]);
-                    }
-                    else if (i == 1 && ThisDataIsCorrect(fileData[i][k], fileData[i][k + 1], fileData[i][k + 2]))
-                    {
-                        newTriangle.SecondVertex.x = Convert.ToDouble(fileData[i][k]);
-                        newTriangle.SecondVertex.y = Convert.ToDouble(fileData[i][k + 1]);
-                        newTriangle.SecondVertex.z = Convert.ToDouble(fileData[i][k + 2]);
-                    }
-                    else if (i == 2 && ThisDataIsCorrect(fileData[i][k], fileData[i][k + 1], fileData[i][k + 2]))
-                    {
-                        newTriangle.ThirdVertex.x = Convert.ToDouble(fileData[i][k]);
-                        newTriangle.ThirdVertex.y = Convert.ToDouble(fileData[i][k + 1]);
-                        newTriangle.ThirdVertex.z = Convert.ToDouble(fileData[i][k + 2]);
-                    }
-                    else if (i == 3 && ThisDataIsCorrect(fileData[i][k], fileData[i][k + 1], fileData[i][k + 2]))
-                    {
-                        newRay.StartPointOfRay.x = Convert.ToDouble(fileData[i][k]);
-                        newRay.StartPointOfRay.y = Convert.ToDouble(fileData[i][k]);
-                        newRay.StartPointOfRay.z = Convert.ToDouble(fileData[i][k]);
-                    }
-                    else if (i == 4 && ThisDataIsCorrect(fileData[i][k]))
-                    {
-                        horizontalAngle = Convert.ToDouble(fileData[i][k]);
-                    }
-                    else if (i == 5 && ThisDataIsCorrect(fileData[i][k]))
-                    {
-                        verticalAngle = Convert.ToDouble(fileData[i][k]);
-                    }
+                    newTriangle.FirstVertex.x = Convert.ToDouble(fileData[i][0], CultureInfo.InvariantCulture);
+                    newTriangle.FirstVertex.y = Convert.ToDouble(fileData[i][1], CultureInfo.InvariantCulture);
+                    newTriangle.FirstVertex.z = Convert.ToDouble(fileData[i][2], CultureInfo.InvariantCulture);
+                }
+                else if (i == 1 && ThisDataIsCorrect(fileData[i][0], fileData[i][1], fileData[i][2]))
+                {
+                    newTriangle.SecondVertex.x = Convert.ToDouble(fileData[i][0], CultureInfo.InvariantCulture);
+                    newTriangle.SecondVertex.y = Convert.ToDouble(fileData[i][1], CultureInfo.InvariantCulture);
+                    newTriangle.SecondVertex.z = Convert.ToDouble(fileData[i][2], CultureInfo.InvariantCulture);
+                }
+                else if (i == 2 && ThisDataIsCorrect(fileData[i][0], fileData[i][1], fileData[i][2]))
+                {
+                    newTriangle.ThirdVertex.x = Convert.ToDouble(fileData[i][0], CultureInfo.InvariantCulture);
+                    newTriangle.ThirdVertex.y = Convert.ToDouble(fileData[i][1], CultureInfo.InvariantCulture);
+                    newTriangle.ThirdVertex.z = Convert.ToDouble(fileData[i][2], CultureInfo.InvariantCulture);
+                }
+                else if (i == 3 && ThisDataIsCorrect(fileData[i][0], fileData[i][1], fileData[i][2]))
+                {
+                    newRay.StartPointOfRay.x = Convert.ToDouble(fileData[i][0], CultureInfo.InvariantCulture);
+                    newRay.StartPointOfRay.y = Convert.ToDouble(fileData[i][1], CultureInfo.InvariantCulture);
+                    newRay.StartPointOfRay.z = Convert.ToDouble(fileData[i][2], CultureInfo.InvariantCulture);
+                }
+                else if (i == 4 && ThisDataIsCorrect(fileData[i][0]))
+                {
+                    horizontalAngle = Convert.ToDouble(fileData[i][0], CultureInfo.InvariantCulture);
+                }
+                else if (i == 5 && ThisDataIsCorrect(fileData[i][0]))
+                {
+                    verticalAngle = Convert.ToDouble(fileData[i][0], CultureInfo.InvariantCulture);
                 }
             }
-            catch (Exception)
-            {
-                return false;
-            }
-            
             newRay.HorizontalAngle = horizontalAngle;
             newRay.VerticalAngle = verticalAngle;
 
@@ -323,7 +310,7 @@ namespace KR1
             {
                 return false;
             }
-
+          
             userTriangle = newTriangle;
             userRay = newRay;
 

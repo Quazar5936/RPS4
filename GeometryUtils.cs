@@ -7,12 +7,12 @@ namespace KR1
 {
     public static class GeometryUtils
     {
+        // Допустимая погрешность
+        const double EPSILON = 1e-6;
+
         public static bool RayTriangleIntersect(Ray ray, Triangle triangle, out Point hitPoint)
         {
             hitPoint = new Point();
-
-            // Допустимая погрешность
-            const double EPSILON = 1e-6;
            
             // Получение вершин треугольника
             Point firstVertex = triangle.FirstVertex;
@@ -49,10 +49,10 @@ namespace KR1
             double u = inverseDeterminant * DotProduct(edgeV1toOriginVec, crossProductDirectionAndEdgeV3V1);
             
             // Проверка выхода за пределы треугольника по u
-            if (u < 0.0 || u > 1.0)
+            if (u < 0.0)
             {
                 return false;
-            }
+            } 
             
             // Векторное произведение: crossProductedgeV1toOriginVecAndEdgeV2V1 = edgeV1toOriginVec × edgeV2V1
             Vector crossProductDirectionAndEdgeV3V1AndEdgeV2V1 = CrossProduct(edgeV1toOriginVec, edgeV2V1);
@@ -105,7 +105,7 @@ namespace KR1
 
         static double VectorLen(Vector vec)
         {
-            return Math.Pow(vec.x * vec.x + vec.y * vec.y + vec.z * vec.z, 0.5);
+            return Math.Sqrt(vec.x * vec.x + vec.y * vec.y + vec.z * vec.z);
         }
         
         // Проверка на существование треугольника
@@ -122,18 +122,27 @@ namespace KR1
             Vector edgeV3V2vec = Subtract(triangle.ThirdVertex, triangle.SecondVertex);
             edgeLens.Add(VectorLen(edgeV3V2vec));
 
-            double maxEdgeLen = Math.Max(edgeLens[0], Math.Max(edgeLens[1], edgeLens[2]));
-            
+            double maxEdgeLen = 0.0;
+            int maxLenIndex = 0;
+            for(int i = 0;i < edgeLens.Count; i++)
+            {
+                if (maxEdgeLen < edgeLens[i])
+                {
+                    maxEdgeLen = edgeLens[i];
+                    maxLenIndex = i;
+                }
+            }
+          
             double notMaxEdgeLensSum = 0.0;
             for(int i = 0;i < edgeLens.Count; i++)
             {
-                if (edgeLens[i] != maxEdgeLen)
+                if (i != maxLenIndex)
                 {
                     notMaxEdgeLensSum += edgeLens[i];
                 }
             }
 
-            if (maxEdgeLen < notMaxEdgeLensSum)
+            if (notMaxEdgeLensSum > maxEdgeLen + EPSILON)
             {
                 return true;
             }

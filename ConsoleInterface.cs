@@ -20,14 +20,14 @@ namespace KR1
 
         static void Greeting()
         {
-            String greetingStr = "Программа для определения координат точки пересечения луча и треугольника\n" +
+            string greetingStr = "Программа для определения координат точки пересечения луча и треугольника\n" +
                                  "Автор: Заиграев С.С., группа 444\n" +
                                  "Решаемая задача: автоматизировать определение координат точки пересечения луча и треугольника\n" +
                                  "Результат: Координаты точки пересечения или сообщение о том, что такой точки нет\n\n";
             Console.WriteLine(greetingStr);
         }
 
-        void PrintAllData()
+        void PrintInputData()
         {
             Console.WriteLine($"Луч(x,y,z)\nТочка начала луча: [{UserRay.StartPointOfRay.x}, {UserRay.StartPointOfRay.y}, {UserRay.StartPointOfRay.z}]");
             Console.WriteLine($"Горизонтальный угол луча(в градусах): {UserRay.HorizontalAngle}\nВертикальный угол луча(в градусах): {UserRay.VerticalAngle}\n");
@@ -46,6 +46,7 @@ namespace KR1
         {
             dataSavingChoice = !FileOperations.SaveDataToFile(UserTriangle, UserRay);
         }
+
         void SaveToFileChoice()
         {
             bool dataSavingChoice = true;
@@ -76,10 +77,8 @@ namespace KR1
 
             Input.TriangleInput(out UserTriangle);
 
-            PrintAllData();
             Console.WriteLine("Данные введены, идет поиск точки...");
 
-            PrintAllData();
             if (GeometryUtils.RayTriangleIntersect(UserRay,UserTriangle, out Point hitPoint))
             {
                 Console.WriteLine("Найдено пересечение!\n");
@@ -117,7 +116,7 @@ namespace KR1
                 
             } while (!GeometryUtils.ThisTriangleIsExists(UserTriangle));
 
-            PrintAllData();
+            PrintInputData();
             
             if (GeometryUtils.RayTriangleIntersect(UserRay, UserTriangle, out Point hitPoint))
             {
@@ -138,7 +137,9 @@ namespace KR1
             bool DataIsLoaded = FileOperations.LoadDataFromFile(out UserTriangle, out UserRay);
             if (DataIsLoaded)
             {
-                PrintAllData();
+                Console.WriteLine("Данные загружены\n");
+
+                PrintInputData();
 
                 if (GeometryUtils.RayTriangleIntersect(UserRay, UserTriangle, out Point hitPoint))
                 {
@@ -197,8 +198,7 @@ namespace KR1
             InputDataFromConsole = 1,
             AutoInput,
             InputDataFromFile,
-            QuitTheProgram,
-            Quit
+            QuitTheProgram
         }
 
         public enum SaveDataToFileOrNot {
