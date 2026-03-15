@@ -21,7 +21,7 @@ namespace KR2
             
             for(int i = 0;i < number.Number.Length; i++)
             {
-                if (!((i == 0 && number.Number[i] == '-') || allowedSymbols.Contains(number.Number[i])))
+                if (!(allowedSymbols.Contains(number.Number[i]) || (i == 0 && number.Number[i] == '-')))
                 {
                     return false;
                 }

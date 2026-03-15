@@ -67,6 +67,7 @@ namespace KR2
 
             return true;
         }
+
         public static bool SaveDataToFile(BigNumber number1, BigNumber number2, BigNumber resNum)
         {
             bool SaveDataProcess = true;
@@ -75,37 +76,29 @@ namespace KR2
                 Console.Write("Введите путь к файлу, в который будут сохраняться данные: ");
                 string filePath = Console.ReadLine();
 
-                bool fileAccess = CanAccessFile(filePath);
-                if (!fileAccess && File.Exists(filePath))
+                if (!CanAccessFile(filePath) && File.Exists(filePath))
                 {
-                    bool EnterFilePathAgain = EnterFilePathAgainOrNotChoice();
-                    
-                    if (!EnterFilePathAgain)
+                    if (!EnterFilePathAgainOrNotChoice())
                     {
                         return false;
                     }
                     continue;
                 }
-                
-                if (File.Exists(filePath))
-                {
-                    bool RewriteFile = RewriteDataChoice(filePath);
-                    if (!RewriteFile)
-                    {
-                        continue;
-                    }
-                }
 
                 try
                 {
+                    if (!WriteDataChoice(filePath))
+                    {
+                        continue;
+                    }
+
                     RewriteFileData(filePath, number1, number2, resNum);
                     Console.WriteLine("Данные успешно сохранены");
                     SaveDataProcess = false;
                 }
                 catch (Exception)
                 {
-                    bool EnterFilePathAgain = EnterFilePathAgainOrNotChoice();
-                    if (!EnterFilePathAgain)
+                    if (!EnterFilePathAgainOrNotChoice())
                     {
                         return false;
                     }
@@ -116,11 +109,15 @@ namespace KR2
             return true;
         }
 
-        static bool RewriteDataChoice(string filePath)
+        static bool WriteDataChoice(string filePath)
         {
-            if (!CanAccessFile(filePath))
+            if (!File.Exists(filePath))
             {
                 return true;
+            }
+            else if (!CanAccessFile(filePath) && File.Exists(filePath))
+            {
+                return false;
             }
             string fileData = File.ReadAllText(filePath);
 
@@ -171,11 +168,9 @@ namespace KR2
                     Environment.Exit(0);
                 }
 
-                bool fileAccess = CanAccessFile(filePath);
-                if (!fileAccess)
+                if (!CanAccessFile(filePath))
                 {
-                    bool EnterFilePathAgain = EnterFilePathAgainOrNotChoice();
-                    if (!EnterFilePathAgain)
+                    if (!EnterFilePathAgainOrNotChoice())
                     {
                         return false;
                     }
@@ -185,26 +180,24 @@ namespace KR2
                 try 
                 {
                     allFileData = File.ReadAllText(filePath);
+                    if (!FileParser(allFileData, out number1, out number2, out resNum))
+                    {
+                        if (!EnterFilePathAgainOrNotChoice())
+                        {
+                            return false;
+                        }
+                        continue;
+                    }
                 }
                 catch (Exception)
                 {
-                    bool EnterFilePathAgain = EnterFilePathAgainOrNotChoice();
-                    if (!EnterFilePathAgain)
+                    if (!EnterFilePathAgainOrNotChoice())
                     {
                         return false;
                     }
                     continue;
                 }
-                
-                if (!FileParser(allFileData, out number1, out number2, out resNum))
-                {
-                    bool EnterFilePathAgain = EnterFilePathAgainOrNotChoice();
-                    if (!EnterFilePathAgain)
-                    {
-                        return false;
-                    }
-                    continue;
-                }
+
                 Console.WriteLine("Данные из файла успешно загружены\n");
                 return true;
             }
